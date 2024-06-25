@@ -1,0 +1,1199 @@
+{
+    "name": "Social Posting (LinkedIn, FB, Medium, X)",
+    "flow": [
+        {
+            "id": 1,
+            "module": "airtable:ActionSearchRecords",
+            "version": 3,
+            "parameters": {
+                "__IMTCONN__": 2681357
+            },
+            "mapper": {
+                "base": "appsXpKyDcelqifX2",
+                "view": "viwu0aQIqMbbAW6XJ",
+                "table": "tblkHGtqysozLVzUD",
+                "maxRecords": "1",
+                "useColumnId": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 450
+                },
+                "restore": {
+                    "expect": {
+                        "base": {
+                            "mode": "chose",
+                            "label": "Social Media Posting"
+                        },
+                        "sort": {
+                            "mode": "chose"
+                        },
+                        "view": {
+                            "mode": "chose",
+                            "label": "Grid view"
+                        },
+                        "table": {
+                            "mode": "chose",
+                            "label": "Table 1"
+                        },
+                        "fields": {
+                            "mode": "chose"
+                        },
+                        "useColumnId": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "airtable2"
+                            },
+                            "label": "My Airtable Token or Key connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:airtable3,airtable2",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "base",
+                        "type": "select",
+                        "label": "Base",
+                        "required": true
+                    },
+                    {
+                        "name": "useColumnId",
+                        "type": "boolean",
+                        "label": "Use Column ID",
+                        "required": true
+                    },
+                    {
+                        "name": "table",
+                        "type": "select",
+                        "label": "Table",
+                        "required": true
+                    },
+                    {
+                        "name": "formula",
+                        "type": "text",
+                        "label": "Formula"
+                    },
+                    {
+                        "name": "maxRecords",
+                        "type": "integer",
+                        "label": "Limit"
+                    },
+                    {
+                        "name": "sort",
+                        "spec": [
+                            {
+                                "name": "field",
+                                "type": "select",
+                                "label": "Field",
+                                "dynamic": true,
+                                "options": []
+                            },
+                            {
+                                "name": "direction",
+                                "type": "select",
+                                "label": "Direction",
+                                "options": [
+                                    {
+                                        "label": "Descending",
+                                        "value": "desc"
+                                    },
+                                    {
+                                        "label": "Ascending",
+                                        "value": "asc"
+                                    }
+                                ]
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Sort"
+                    },
+                    {
+                        "name": "view",
+                        "type": "select",
+                        "label": "View"
+                    },
+                    {
+                        "name": "fields",
+                        "type": "select",
+                        "label": "Output Fields",
+                        "multiple": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "__IMTLENGTH__",
+                        "type": "uinteger",
+                        "label": "Total number of bundles"
+                    },
+                    {
+                        "name": "__IMTINDEX__",
+                        "type": "uinteger",
+                        "label": "Bundle order position"
+                    },
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "ID"
+                    },
+                    {
+                        "name": "createdTime",
+                        "type": "date",
+                        "label": "Created Time"
+                    },
+                    {
+                        "name": "Date",
+                        "time": false,
+                        "type": "date",
+                        "label": "Date"
+                    },
+                    {
+                        "name": "Post Copy",
+                        "type": "text",
+                        "label": "Post Copy",
+                        "multiline": true
+                    },
+                    {
+                        "name": "URL",
+                        "type": "text",
+                        "label": "URL"
+                    },
+                    {
+                        "name": "Platform",
+                        "type": "array",
+                        "label": "Platform",
+                        "dynamic": true,
+                        "editable": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 15,
+            "module": "openai-gpt-3:CreateCompletion",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 2599579
+            },
+            "mapper": {
+                "model": "gpt-4o",
+                "top_p": "1",
+                "select": "chat",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are an intelligent social media content creation writing assistant"
+                    },
+                    {
+                        "role": "user",
+                        "content": "Convert the following post into formats for the specified social media platforms based on the tone and length required for each one. Be mindful that each platform has different requirements. Do not use hashtags on Facebook or Medium. Put the copy in JSON. Do not use back ticks. Insert a new line using \\n between each different entry but do not insert one at the beginning. I also need a separate field to be created for the Medium Blog post.\n\nFor Twitter, posts should be pithy, punchy, and engaging and no more than 280 characters.\n\nFor Facebook, posts should be medium length (no more than 250 words), engaging, casual, friendly, and knowledgeable.\n\nFor Medium, you should write a full blog post in an approachable but knowledgeable tone of voice as though you are a thought leader. It should be at least 750 words. Also, create a separate field for the Medium blog post title. Insert <br><br> between line breaks.\n\nFor LinkedIn, you should also come across as a thought leader but use a corporate, professional tone of voice. Posts should be no more than 1250 characters and do not use special characters. Do not use new lines \\n. Use markdown atx for this output. \n\nThe goal with all of these posts is to increase engagement and come across as an authority on the topic in a way that is appropriate for each platform.\n\nOutput JSON format:\n{\n\"Facebook\": \"Facebook post content here\",\n\"Twitter\": \"Twitter post content here\",\n\"LinkedIn\": \"LinkedIn post content here\",\n\"Medium\": {\n\"title\": \"Title for the Medium blog post\",\n\"content\": \"Medium post content here\"\n}\n}"
+                    },
+                    {
+                        "role": "user",
+                        "content": "Post Content:\nThe Transformative Power of AI in Healthcare\n\nArtificial Intelligence (AI) is rapidly transforming the healthcare industry, bringing about significant advancements in diagnostics, treatment, and patient care. From early disease detection to personalized medicine, AI is making healthcare more efficient, accurate, and accessible. Here are some key areas where AI is making a remarkable impact:\n\n1. **Early Diagnosis**: AI algorithms can analyze vast amounts of medical data to detect diseases like cancer, diabetes, and cardiovascular conditions at much earlier stages than traditional methods. This early detection can lead to more effective treatments and better patient outcomes.\n2. **Personalized Treatment Plans**: By leveraging AI, healthcare providers can develop personalized treatment plans based on an individual’s genetic profile, lifestyle, and medical history. This precision medicine approach ensures that patients receive the most effective treatments tailored to their specific needs.\n3. **Remote Monitoring and Telemedicine**: AI-powered wearable devices and remote monitoring tools can track patients' vital signs in real-time, providing continuous health data to healthcare providers. This enables proactive interventions and reduces the need for frequent hospital visits.\n4. **Administrative Efficiency**: AI can streamline administrative tasks such as scheduling, billing, and record-keeping, reducing the workload on healthcare staff and allowing them to focus more on patient care.\n5. **Drug Discovery and Development**: AI accelerates the process of drug discovery by analyzing complex biological data and predicting how new drugs will interact with the human body. This can significantly shorten the time required to bring new medications to market.\n\nThe integration of AI in healthcare is not just a technological advancement; it's a paradigm shift that enhances the quality of life and makes healthcare more accessible to all. As AI continues to evolve, its potential to improve healthcare outcomes is limitless. What are your thoughts on the future of AI in healthcare? Share your insights and join the conversation! #AI #Healthcare #Innovation #TechRevolution\n\n\nPlatforms: Facebook, Instagram, Twitter, Medium"
+                    },
+                    {
+                        "role": "assistant",
+                        "content": "{\"Facebook\": \"The Transformative Power of AI in HealthcareThe Transformative Power of AI in HealthcareArtificial Intelligence (AI) is rapidly transforming the healthcare industry, bringing about significant advancements in diagnostics, treatment, and patient care. From early disease detection to personalized medicine, AI is making healthcare more efficient, accurate, and accessible. Here are some key areas where AI is making a remarkable impact:Early Diagnosis: AI algorithms can analyze vast amounts of medical data to detect diseases like cancer, diabetes, and cardiovascular conditions at much earlier stages than traditional methods. This early detection can lead to more effective treatments and better patient outcomes.Personalized Treatment Plans: By leveraging AI, healthcare providers can develop personalized treatment plans based on an individual’s genetic profile, lifestyle, and medical history. This precision medicine approach ensures that patients receive the most effective treatments tailored to their specific needs.Remote Monitoring and Telemedicine: AI-powered wearable devices and remote monitoring tools can track patients' vital signs in real-time, providing continuous health data to healthcare providers. This enables proactive interventions and reduces the need for frequent hospital visits.Administrative Efficiency: AI can streamline administrative tasks such as scheduling, billing, and record-keeping, reducing the workload on healthcare staff and allowing them to focus more on patient care.Drug Discovery and Development: AI accelerates the process of drug discovery by analyzing complex biological data and predicting how new drugs will interact with the human body. This can significantly shorten the time required to bring new medications to market.The integration of AI in healthcare is not just a technological advancement; it's a paradigm shift that enhances the quality of life and makes healthcare more accessible to all. As AI continues to evolve, its potential to improve healthcare outcomes is limitless.What are your thoughts on the future of AI in healthcare? Share your insights and join the conversation!#AI #Healthcare #Innovation #TechRevolution #MedicalAdvancementsComment below with your thoughts and experiences!\", \"twitter\": \"AI is revolutionizing healthcare! From early disease detection to personalized treatments, AI is making healthcare more efficient and accessible. Discover how AI is transforming diagnostics, remote monitoring, drug discovery, and more. #AI #Healthcare #Innovation #TechRevolution\", \"linkedin\":\"Artificial Intelligence (AI) is revolutionizing the healthcare industry, driving significant advancements in diagnostics, treatment, and patient care. Here are key areas where AI is making a profound impact:Early Diagnosis: AI algorithms can analyze extensive medical data to detect diseases like cancer, diabetes, and cardiovascular conditions at much earlier stages than traditional methods. Early detection leads to more effective treatments and improved patient outcomes.Personalized Treatment Plans: AI enables healthcare providers to develop personalized treatment plans based on an individual’s genetic profile, lifestyle, and medical history. This precision medicine approach ensures that patients receive treatments tailored to their specific needs.Remote Monitoring and Telemedicine: AI-powered wearable devices and remote monitoring tools track patients' vital signs in real-time, providing continuous health data to healthcare providers. This proactive approach reduces the need for frequent hospital visits and enables timely interventions.Administrative Efficiency: AI streamlines administrative tasks such as scheduling, billing, and record-keeping, reducing the workload on healthcare staff and allowing them to focus more on patient care.Drug Discovery and Development: AI accelerates drug discovery by analyzing complex biological data and predicting how new drugs will interact with the human body, significantly shortening the time required to bring new medications to market.The integration of AI in healthcare represents not just a technological advancement but a paradigm shift that enhances the quality of life and makes healthcare more accessible. As AI continues to evolve, its potential to improve healthcare outcomes is boundless.Let's discuss the future of AI in healthcare. What are your thoughts on its impact and potential? Share your insights and join the conversation!#AI #Healthcare #Innovation #TechRevolution #MedicalAdvancementsFeel free to comment below with your thoughts and experiences!\", \"medium\":\"The Transformative Power of AI in HealthcareArtificial Intelligence (AI) is rapidly transforming various sectors, and healthcare is one of the most promising fields witnessing this revolution. The integration of AI into healthcare is not just about adopting new technology; it’s about fundamentally enhancing the quality of patient care, making treatments more efficient, and improving overall health outcomes. Let's explore the key areas where AI is making a significant impact in healthcare.Early DiagnosisOne of the most critical advantages of AI in healthcare is its ability to analyze vast amounts of medical data swiftly and accurately. AI algorithms can detect patterns and anomalies in medical images and patient records that might be missed by human eyes. For instance, AI systems are now capable of identifying early signs of diseases like cancer, diabetes, and cardiovascular conditions. Early diagnosis is crucial as it allows for timely intervention, which can significantly improve patient outcomes and potentially save lives.Personalized Treatment PlansEvery patient is unique, and AI is paving the way for truly personalized medicine. By analyzing an individual’s genetic profile, lifestyle, and medical history, AI can help healthcare providers develop customized treatment plans. This precision medicine approach ensures that patients receive the most effective treatments tailored specifically to their needs, reducing the risk of adverse reactions and improving the efficacy of therapies.Remote Monitoring and TelemedicineThe rise of wearable devices and telemedicine has been further amplified by AI. AI-powered wearable devices can continuously monitor a patient’s vital signs and health metrics in real-time. This constant stream of data allows healthcare providers to track the patient’s condition remotely and intervene proactively when necessary. Remote monitoring is particularly beneficial for managing chronic conditions, as it reduces the need for frequent hospital visits and provides patients with a higher quality of life.Administrative EfficiencyBeyond direct patient care, AI is also streamlining administrative tasks within healthcare systems. From scheduling appointments and managing patient records to billing and insurance claims, AI can handle routine administrative duties efficiently. This not only reduces the workload on healthcare staff but also minimizes errors and frees up more time for healthcare professionals to focus on patient care.Drug Discovery and DevelopmentThe process of drug discovery and development is notoriously lengthy and expensive. AI is revolutionizing this process by analyzing complex biological data and predicting how new drugs will interact with the human body. This can significantly shorten the time required to develop new medications and bring them to market. AI’s ability to sift through vast datasets and identify potential drug candidates quickly is accelerating the pace of innovation in pharmaceuticals.ConclusionThe integration of AI in healthcare represents a paradigm shift, enhancing the quality of life and making healthcare more accessible and efficient. As AI technology continues to evolve, its potential to improve healthcare outcomes is limitless. From early diagnosis and personalized treatment plans to remote monitoring and drug discovery, AI is transforming the healthcare landscape in profound ways.What are your thoughts on the future of AI in healthcare? How do you see it shaping the industry in the coming years? Share your insights and join the conversation!\"}"
+                    },
+                    {
+                        "role": "user",
+                        "content": "Post Copy: {{1.`Post Copy`}}\nPlatforms: {{1.Platform}}"
+                    }
+                ],
+                "max_tokens": "0",
+                "temperature": "1",
+                "n_completions": "1",
+                "response_format": "text"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 450
+                },
+                "restore": {
+                    "expect": {
+                        "stop": {
+                            "mode": "chose"
+                        },
+                        "model": {
+                            "mode": "chose",
+                            "label": "gpt-4o (system)"
+                        },
+                        "select": {
+                            "label": "Create a Chat Completion (GPT Models)"
+                        },
+                        "messages": {
+                            "mode": "chose",
+                            "items": [
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "System"
+                                    }
+                                },
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "User"
+                                    }
+                                },
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "User"
+                                    }
+                                },
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "Assistant"
+                                    }
+                                },
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "User"
+                                    }
+                                }
+                            ]
+                        },
+                        "logit_bias": {
+                            "mode": "chose"
+                        },
+                        "response_format": {
+                            "mode": "chose",
+                            "label": "Text"
+                        },
+                        "additionalParameters": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "openai-gpt-3"
+                            },
+                            "label": "My OpenAI connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:openai-gpt-3",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "select",
+                        "type": "select",
+                        "label": "Select Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "chat",
+                                "prompt"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "max_tokens",
+                        "type": "number",
+                        "label": "Max Tokens",
+                        "required": true
+                    },
+                    {
+                        "name": "temperature",
+                        "type": "number",
+                        "label": "Temperature",
+                        "validate": {
+                            "max": 2,
+                            "min": 0
+                        }
+                    },
+                    {
+                        "name": "top_p",
+                        "type": "number",
+                        "label": "Top P",
+                        "validate": {
+                            "max": 1,
+                            "min": 0
+                        }
+                    },
+                    {
+                        "name": "n_completions",
+                        "type": "number",
+                        "label": "Number"
+                    },
+                    {
+                        "name": "frequency_penalty",
+                        "type": "number",
+                        "label": "Frequency Penalty",
+                        "validate": {
+                            "max": 2,
+                            "min": -2
+                        }
+                    },
+                    {
+                        "name": "presence_penalty",
+                        "type": "number",
+                        "label": "Presence Penalty",
+                        "validate": {
+                            "max": 2,
+                            "min": -2
+                        }
+                    },
+                    {
+                        "name": "logit_bias",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "token",
+                                    "type": "text",
+                                    "label": "Token ID",
+                                    "required": true
+                                },
+                                {
+                                    "name": "probability",
+                                    "type": "number",
+                                    "label": "Probability",
+                                    "required": true,
+                                    "validate": {
+                                        "max": 100,
+                                        "min": -100
+                                    }
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Token Probability"
+                        },
+                        "type": "array",
+                        "label": "Token Probability"
+                    },
+                    {
+                        "name": "response_format",
+                        "type": "select",
+                        "label": "Response Format",
+                        "validate": {
+                            "enum": [
+                                "text",
+                                "json_object"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "seed",
+                        "type": "integer",
+                        "label": "Seed"
+                    },
+                    {
+                        "name": "stop",
+                        "spec": {
+                            "name": "value",
+                            "type": "text",
+                            "label": "Stop Sequence"
+                        },
+                        "type": "array",
+                        "label": "Stop Sequences",
+                        "validate": {
+                            "maxItems": 4
+                        }
+                    },
+                    {
+                        "name": "additionalParameters",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "key",
+                                    "type": "text",
+                                    "label": "Parameter Name",
+                                    "required": true
+                                },
+                                {
+                                    "name": "type",
+                                    "type": "select",
+                                    "label": "Input Type",
+                                    "options": [
+                                        {
+                                            "label": "Text",
+                                            "value": "text",
+                                            "nested": [
+                                                {
+                                                    "name": "value",
+                                                    "type": "text",
+                                                    "label": "Parameter Value"
+                                                }
+                                            ],
+                                            "default": true
+                                        },
+                                        {
+                                            "label": "Number",
+                                            "value": "number",
+                                            "nested": [
+                                                {
+                                                    "name": "value",
+                                                    "type": "number",
+                                                    "label": "Parameter Value"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "label": "Boolean",
+                                            "value": "boolean",
+                                            "nested": [
+                                                {
+                                                    "name": "value",
+                                                    "type": "boolean",
+                                                    "label": "Parameter Value"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "label": "Date",
+                                            "value": "date",
+                                            "nested": [
+                                                {
+                                                    "name": "value",
+                                                    "type": "date",
+                                                    "label": "Parameter Value"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "label": "Any",
+                                            "value": "any",
+                                            "nested": [
+                                                {
+                                                    "name": "value",
+                                                    "type": "any",
+                                                    "label": "Parameter Value"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Input Parameter"
+                        },
+                        "type": "array",
+                        "label": "Other Input Parameters"
+                    },
+                    {
+                        "name": "model",
+                        "type": "select",
+                        "label": "Model",
+                        "required": true
+                    },
+                    {
+                        "name": "messages",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "role",
+                                    "type": "select",
+                                    "label": "Role",
+                                    "options": [
+                                        {
+                                            "label": "System",
+                                            "value": "system"
+                                        },
+                                        {
+                                            "label": "User",
+                                            "value": "user"
+                                        },
+                                        {
+                                            "label": "Assistant",
+                                            "value": "assistant"
+                                        }
+                                    ],
+                                    "required": true
+                                },
+                                {
+                                    "name": "content",
+                                    "type": "text",
+                                    "label": "Message Content"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Message"
+                        },
+                        "type": "array",
+                        "label": "Messages",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 16,
+            "module": "json:ParseJSON",
+            "version": 1,
+            "parameters": {
+                "type": ""
+            },
+            "mapper": {
+                "json": "{{15.result}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 450
+                },
+                "restore": {
+                    "parameters": {
+                        "type": {
+                            "label": "Choose a data structure"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "type",
+                        "type": "udt",
+                        "label": "Data structure"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "json",
+                        "type": "text",
+                        "label": "JSON string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 17,
+            "module": "http:ActionGetFile",
+            "version": 3,
+            "parameters": {
+                "handleErrors": false
+            },
+            "mapper": {
+                "url": "{{1.URL}}",
+                "method": "get",
+                "serializeUrl": false,
+                "shareCookies": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 900,
+                    "y": 450
+                },
+                "restore": {},
+                "parameters": [
+                    {
+                        "name": "handleErrors",
+                        "type": "boolean",
+                        "label": "Evaluate all states as errors (except for 2xx and 3xx )",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "url",
+                        "type": "url",
+                        "label": "URL",
+                        "required": true
+                    },
+                    {
+                        "name": "serializeUrl",
+                        "type": "boolean",
+                        "label": "Serialize URL",
+                        "required": true
+                    },
+                    {
+                        "name": "method",
+                        "type": "hidden",
+                        "label": "Method"
+                    },
+                    {
+                        "name": "shareCookies",
+                        "type": "boolean",
+                        "label": "Share cookies with other HTTP modules",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 2,
+            "module": "builtin:BasicRouter",
+            "version": 1,
+            "mapper": null,
+            "metadata": {
+                "designer": {
+                    "x": 1200,
+                    "y": 450
+                }
+            },
+            "routes": [
+                {
+                    "flow": [
+                        {
+                            "id": 18,
+                            "module": "linkedin:ShareImage",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": 2604544
+                            },
+                            "mapper": {
+                                "data": "{{17.data}}",
+                                "content": "{{16.LinkedIn}}",
+                                "fileName": "{{17.fileName}}",
+                                "visibility": "PUBLIC",
+                                "feedDistribution": "MAIN_FEED",
+                                "isReshareDisabledByAuthor": false
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1500,
+                                    "y": 0
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "visibility": {
+                                            "mode": "chose",
+                                            "label": "Public"
+                                        },
+                                        "feedDistribution": {
+                                            "mode": "chose",
+                                            "label": "Main feed"
+                                        },
+                                        "isReshareDisabledByAuthor": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "linkedin2"
+                                            },
+                                            "label": "My LinkedIn connection (Brianna Mills)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:linkedin2",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "fileName",
+                                        "type": "text",
+                                        "label": "File name",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "data",
+                                        "type": "buffer",
+                                        "label": "Data",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "title",
+                                        "type": "text",
+                                        "label": "Title"
+                                    },
+                                    {
+                                        "name": "altText",
+                                        "type": "text",
+                                        "label": "Alt Text"
+                                    },
+                                    {
+                                        "name": "content",
+                                        "type": "text",
+                                        "label": "Content",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "visibility",
+                                        "type": "select",
+                                        "label": "Visibility",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "PUBLIC",
+                                                "CONNECTIONS",
+                                                "LOGGED_IN"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "feedDistribution",
+                                        "type": "select",
+                                        "label": "Feed Distribution",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "MAIN_FEED",
+                                                "NONE"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "isReshareDisabledByAuthor",
+                                        "type": "boolean",
+                                        "label": "Is Reshare Disabled",
+                                        "required": true
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 13,
+                            "module": "facebook-pages:CreatePostWithPhotos",
+                            "version": 6,
+                            "parameters": {
+                                "__IMTCONN__": 2943295
+                            },
+                            "mapper": {
+                                "photos": [
+                                    {
+                                        "data": "{{17.data}}",
+                                        "type": "data",
+                                        "fileName": "{{17.fileName}}"
+                                    }
+                                ],
+                                "message": "{{16.Facebook}}",
+                                "page_id": "338040372720781"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1500,
+                                    "y": 300
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "photos": {
+                                            "mode": "chose",
+                                            "items": [
+                                                {
+                                                    "type": {
+                                                        "mode": "chose",
+                                                        "label": "upload a photo"
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "page_id": {
+                                            "mode": "chose",
+                                            "label": "Pure Vent and Duct Air Duct Cleaning Rockford, Illinois"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "facebook"
+                                            },
+                                            "label": "My Facebook connection (Brianna Wilson Mills)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:facebook",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "page_id",
+                                        "type": "select",
+                                        "label": "Page",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "photos",
+                                        "spec": [
+                                            {
+                                                "name": "type",
+                                                "type": "select",
+                                                "label": "I want to",
+                                                "options": [
+                                                    {
+                                                        "label": "upload a photo",
+                                                        "value": "data",
+                                                        "nested": [
+                                                            {
+                                                                "name": "fileName",
+                                                                "type": "filename",
+                                                                "label": "File name",
+                                                                "required": true,
+                                                                "semantic": "file:name"
+                                                            },
+                                                            {
+                                                                "name": "data",
+                                                                "type": "buffer",
+                                                                "label": "Data",
+                                                                "required": true,
+                                                                "semantic": "file:data"
+                                                            }
+                                                        ],
+                                                        "default": true
+                                                    },
+                                                    {
+                                                        "label": "download photo from URL",
+                                                        "value": "url",
+                                                        "nested": [
+                                                            {
+                                                                "name": "url",
+                                                                "type": "url",
+                                                                "label": "URL",
+                                                                "required": true
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "required": true
+                                            },
+                                            {
+                                                "name": "caption",
+                                                "type": "text",
+                                                "label": "Caption"
+                                            }
+                                        ],
+                                        "type": "array",
+                                        "label": "Photos",
+                                        "required": true,
+                                        "validate": {
+                                            "maxItems": 30,
+                                            "minItems": 1
+                                        }
+                                    },
+                                    {
+                                        "name": "message",
+                                        "type": "text",
+                                        "label": "Message"
+                                    },
+                                    {
+                                        "name": "date",
+                                        "type": "date",
+                                        "label": "Date"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 19,
+                            "module": "twitter:uploadAMedia",
+                            "version": 5,
+                            "parameters": {
+                                "__IMTCONN__": 2946160
+                            },
+                            "mapper": {
+                                "select": "image",
+                                "attachments": [
+                                    {
+                                        "data": "{{17.data}}",
+                                        "filename": "{{17.fileName}}"
+                                    }
+                                ]
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1500,
+                                    "y": 600
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "select": {
+                                            "label": "Image or GIF (Size less than 5MB)"
+                                        },
+                                        "attachments": {
+                                            "mode": "chose",
+                                            "items": [
+                                                null
+                                            ]
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "twitter"
+                                            },
+                                            "label": "My X (formerly Twitter) connection (Brianna Mills)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:twitter",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "select",
+                                        "type": "select",
+                                        "label": "Upload",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "image",
+                                                "video"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "attachments",
+                                        "spec": [
+                                            {
+                                                "name": "filename",
+                                                "type": "filename",
+                                                "label": "File Name",
+                                                "required": true,
+                                                "semantic": "file:name"
+                                            },
+                                            {
+                                                "name": "data",
+                                                "type": "buffer",
+                                                "label": "Data",
+                                                "required": true,
+                                                "semantic": "file:data"
+                                            }
+                                        ],
+                                        "type": "array",
+                                        "label": "Attachments",
+                                        "required": true,
+                                        "validate": {
+                                            "maxItems": 4
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 5,
+                            "module": "twitter:createATweet",
+                            "version": 6,
+                            "parameters": {
+                                "__IMTCONN__": 2946132
+                            },
+                            "mapper": {
+                                "text": "{{16.Twitter}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1800,
+                                    "y": 600
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "media_ids": {
+                                            "mode": "edit"
+                                        },
+                                        "for_super_followers_only": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "twitter2"
+                                            },
+                                            "label": "My X (formerly Twitter) OAuth 2.0 connection (bestnextthingai)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:twitter2",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "text",
+                                        "type": "text",
+                                        "label": "Text Content",
+                                        "required": true
+                                    },
+                                    {
+                                        "mode": "edit",
+                                        "name": "media_ids",
+                                        "spec": {
+                                            "name": "value",
+                                            "type": "text"
+                                        },
+                                        "type": "array",
+                                        "label": "Media IDs"
+                                    },
+                                    {
+                                        "name": "place_id",
+                                        "type": "text",
+                                        "label": "Place ID"
+                                    },
+                                    {
+                                        "name": "direct_message_deep_link",
+                                        "type": "url",
+                                        "label": "Direct Message Link"
+                                    },
+                                    {
+                                        "name": "for_super_followers_only",
+                                        "type": "boolean",
+                                        "label": "Allow to Post Exclusively for Super Followers Only"
+                                    },
+                                    {
+                                        "name": "quote_tweet_id",
+                                        "type": "text",
+                                        "label": "Quote Post ID"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 11,
+                            "module": "medium:createPost",
+                            "version": 2,
+                            "parameters": {
+                                "__IMTCONN__": 2941880
+                            },
+                            "mapper": {
+                                "title": "{{16.Medium.title}}",
+                                "content": "{{16.Medium.content}}",
+                                "contentFormat": "html",
+                                "publishStatus": "public"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1500,
+                                    "y": 900
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "tags": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "medium2"
+                                            },
+                                            "label": "My Medium connection (bri_42661)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:medium2",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "title",
+                                        "type": "text",
+                                        "label": "Title"
+                                    },
+                                    {
+                                        "name": "contentFormat",
+                                        "type": "text",
+                                        "label": "Content Format",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "content",
+                                        "type": "text",
+                                        "label": "Content",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "canonicalUrl",
+                                        "type": "text",
+                                        "label": "Canonical Url"
+                                    },
+                                    {
+                                        "name": "tags",
+                                        "spec": {
+                                            "name": "value",
+                                            "type": "text"
+                                        },
+                                        "type": "array",
+                                        "label": "Tags"
+                                    },
+                                    {
+                                        "name": "publishStatus",
+                                        "type": "text",
+                                        "label": "Publish Status"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "us1.make.com"
+    }
+}
